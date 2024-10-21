@@ -5,20 +5,20 @@ import os
 import time
 from datetime import datetime
 
-# Initialisation du moteur de synthèse vocale
+# Initialization of the voice synthesis engine
 engine = pyttsx3.init()
 
-# Fonction pour parler
+# Function to speak
 def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-# Détecter la langue du système
+# Detect system language
 def get_system_language():
-    system_lang, _ = locale.getlocale()  # Utilisation de getlocale() au lieu de getdefaultlocale() pour éviter le warning
+    system_lang, _ = locale.getlocale() # Using getlocale() instead of getdefaultlocale() to avoid warnings
     return system_lang
 
-# Fonction pour écouter la commande vocale en fonction de la langue détectée
+# Function to listen to voice commands based on the detected language
 def get_audio(system_lang, retries=3):
     recognizer = sr.Recognizer()
     attempt = 0
@@ -39,13 +39,13 @@ def get_audio(system_lang, retries=3):
     speak("Trop de tentatives. Arrêt de la reconnaissance vocale.")
     return ""
 
-# Confirmation avant d'effectuer une action
+# Confirmation before performing an action
 def confirm_action(text):
     speak(text)
     response = get_audio(get_system_language())
     return "oui" in response
 
-# Fonction pour rechercher un fichier ou dossier en fonction du mot clé
+# Function to search for a file or folder based on a keyword
 def find_file_or_folder(name, root_path="C:\\"):
     found_items = []
     unique_types = set()
@@ -53,7 +53,7 @@ def find_file_or_folder(name, root_path="C:\\"):
 
     start_time = time.time()
 
-    # Recherche dans le système de fichiers
+    # Search within the file system
     for dirpath, dirnames, filenames in os.walk(root_path):
         current_time = time.time()
         elapsed_time = int(current_time - start_time)
@@ -92,22 +92,22 @@ def find_file_or_folder(name, root_path="C:\\"):
             desired_type = input("Entrez le type: ")
             filtered_items = [item for item in found_items if item['type'] == desired_type]
 
-        # Ajout de la demande claire pour "TOUT" ou "DEPUIS UNE DATE"
+        # Adding clear request for "ALL" or "FROM A DATE"
         speak("Voulez-vous voir tous les fichiers (dites 'TOUT') ou bien filtrer par date (dites 'DEPUIS UNE DATE') ?")
         filter_choice = get_audio(get_system_language())
 
-        if "tout" in filter_choice:  # On vérifie si "TOUT" est dit
+        if "tout" in filter_choice:  # Check if "ALL" is said
             speak("Affichage de tous les fichiers.")
         elif "depuis une date" in filter_choice:
             speak("Indiquez la date de dernière modification au format 'jour mois année', par exemple, '1er janvier 2022'.")
             mod_date = get_audio(get_system_language())
             try:
-                # Conversion en format date - Gestion des jours et mois avec des espaces et minuscules
+                # Convert to date format - Handling spaces and lowercase for day and month
                 mod_date_timestamp = datetime.strptime(mod_date, "%d %B %Y").timestamp()
                 filtered_items = [item for item in filtered_items if item['mod_time'] >= mod_date_timestamp]
             except ValueError:
                 try:
-                    # Essayer un autre format de date si l'utilisateur entre un autre format
+                    # Try another date format if the user enters an alternate format
                     mod_date_timestamp = datetime.strptime(mod_date, "%d %m %Y").timestamp()
                     filtered_items = [item for item in filtered_items if item['mod_time'] >= mod_date_timestamp]
                 except ValueError:
@@ -123,9 +123,9 @@ def find_file_or_folder(name, root_path="C:\\"):
         speak(f"Aucun fichier ou dossier contenant {name} n'a été trouvé.")
         return []
 
-# Assistant vocal pour explorer les fichiers
+# Voice assistant to explore files
 def assistant():
-    # Timer de début
+    # Start timer
     start_time = time.time()
 
     system_lang = get_system_language()
@@ -151,10 +151,10 @@ def assistant():
     elif "arrêter" in command or "quitter" in command:
         speak("Arrêt de l'assistant.")
 
-    # Timer de fin et affichage de la durée totale
+    # End timer and display total duration
     end_time = time.time()
     total_time = end_time - start_time
     print(f"Le script a pris {total_time:.2f} secondes pour s'exécuter.")
 
-# Lancer l'assistant
+# Start the assistant
 assistant()
